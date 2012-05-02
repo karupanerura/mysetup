@@ -1,0 +1,74 @@
+#!/bin/sh
+#
+#
+
+# PROVIDE: q4m
+# REQUIRE: LOGIN
+# KEYWORD: shutdown
+
+#
+# Add the following line to /etc/rc.conf to enable q4m:
+# q4m_enable (bool):	Set to "NO" by default.
+#			Set it to "YES" to enable Q4m.
+# q4m_limits (bool):	Set to "NO" by default.
+#			Set it to yes to run `limits -e -U q4m`
+#			just before q4m starts.
+# q4m_pidfile (str):	Custum PID file path and name.
+#			Default to "${q4m_dbdir}/${hostname}.pid".
+# q4m_dir (str):	Default to ""
+#			Base database directory.
+# q4m_args (str):	Custom additional arguments to be passed
+#			to q4md_safe (default empty).
+#
+
+. /etc/rc.subr
+
+name="q4m"
+rcvar=q4m_enable
+
+load_rc_config $name
+
+: ${q4m_enable="NO"}
+: ${q4m_limits="NO"}
+: ${q4m_dir="/usr/local/q4m"}
+
+q4m_user="q4m"
+q4m_limits_args="-e -U ${q4m_user}"
+pidfile=${q4m_pidfile:-"${q4m_dir}/var/`/bin/hostname`.pid"}
+command="/usr/sbin/daemon"
+command_args="-c -f ${q4m_dir}/bin/mysqld_safe --defaults-file=${q4m_dir}/etc/my.cnf --user=${q4m_user} --datadir=${q4m_dir}/var --pid-file=${pidfile} ${q4m_args}"
+procname="${q4m_dir}/libexec/mysqld"
+start_precmd="${name}_prestart"
+start_postcmd="${name}_poststart"
+q4m_install_db="${q4m_dir}/bin/mysql_install_db"
+q4m_install_db_args="--basedir=${q4m_dir} --datadir=${q4m_dir}/var --force"
+
+q4m_create_auth_tables()
+{
+	eval $q4m_install_db $q4m_install_db_args >/dev/null 2>/dev/null
+        [ $? -eq 0 ] && chown -R ${q4m_user}:${q4m_user} ${q4m_dbdir}
+}
+
+q4m_prestart()
+{
+	if [ ! -d "${q4m_dir}/var/mysql/." ]; then
+		q4m_create_auth_tables || return 1
+	fi
+	if checkyesno q4m_limits; then
+		eval `/usr/bin/limits ${q4m_limits_args}` 2>/dev/null
+	else
+		return 0
+	fi
+}
+
+q4m_poststart()
+{
+	local timeout=15
+	while [ ! -f "${pidfile}" -a ${timeout} -gt 0 ]; do
+		timeout=$(( timeout - 1 ))
+		sleep 1
+	done
+	return 0
+}
+
+run_rc_command "$1"
