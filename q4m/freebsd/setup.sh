@@ -57,10 +57,13 @@ mkdir -p /usr/local/q4m/var
 
 cp $CDIR/q4m.init /usr/local/etc/rc.d/q4m-server
 chmod 755 /usr/local/etc/rc.d/q4m-server
+echo "" >> /etc/rc.conf
 echo "q4m_enable=\"YES\"" >> /etc/rc.conf
 
 /usr/local/q4m/bin/mysql_install_db --defaults-file=/usr/local/q4m/etc/my.cnf
 chmod 755 /usr/local/q4m/var
+pw useradd q4m -s /sbin/nologin
+chown -R q4m /usr/local/q4m
 /usr/local/etc/rc.d/q4m-server start
 
 cd /usr/local/src
