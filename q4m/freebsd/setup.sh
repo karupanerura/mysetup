@@ -1,5 +1,5 @@
 #!/bin/sh
-#set -e
+set -e
 
 MYVER=5.1.59
 Q4MVER=0.9.5
