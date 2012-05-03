@@ -83,5 +83,5 @@ mkdir -p /usr/local/q4m/lib/mysql/plugin
 cp src/.libs/libqueue_engine.so /usr/local/q4m/lib/mysql/plugin/
 cat support-files/install.sql | /usr/local/q4m/bin/mysql --defaults-file=/usr/local/q4m/etc/my.cnf -S /tmp/mysql_q4m.sock
 
-
-
+cp $CDIR/../mysql_q4m /usr/local/bin/mysql_q4m
+chmod 755 /usr/local/bin/mysql_q4m

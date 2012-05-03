@@ -1,0 +1,3 @@
+#!/bin/sh
+Q4M_DIR=/usr/local/q4m
+$Q4M_DIR/bin/mysql --defaults-file=$Q4M_DIR/etc/my.cnf $@
