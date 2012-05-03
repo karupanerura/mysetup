@@ -5,6 +5,7 @@ MYVER=5.1.59
 Q4MVER=0.9.5
 
 CDIR=$(cd $(dirname $0) && pwd)
+mkdir -p /usr/local/src
 cd /usr/local/src
 
 if [ ! -f mysql-$MYVER.tar.gz ]; then
